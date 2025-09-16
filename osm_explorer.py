@@ -67,9 +67,8 @@ class MainApplication(tk.Frame):
         self.poly_toggle_var = tk.BooleanVar(value=True)
         self.point_toggle_var = tk.BooleanVar(value=True)
         self.line_toggle_var = tk.BooleanVar(value=True)
-        self.layers = {}
         self.geocode = None
-
+  
         self.setup_layout()
 
 
@@ -170,8 +169,6 @@ class MainApplication(tk.Frame):
             self.parent.title(f"OpenStreetMap Search - {search_input}")
         except Exception as e:
             messagebox.showerror("Error", f"Could not find data for '{search_input}'.\nDetail: {e}")
-            self.cached_search = None
-            self.cached_gdf = None
             self.parent.title("OpenStreetMap Search")
             
 
@@ -213,27 +210,24 @@ class MainApplication(tk.Frame):
 
     def draw_polygons(self, poly_gdf):
         if not poly_gdf.empty and self.poly_toggle_var.get():
-            for index, row in poly_gdf.iterrows():
+            for row in poly_gdf.iterrows():
                 coords = [(y, x) for x, y in row.geometry.exterior.coords]
-                layer_name = f"poly_{index}" 
-                polygon_obj = self.map_widget.set_polygon(coords, outline_color="#2c3e50", border_width=2, name=layer_name)
-                self.layers[layer_name] = polygon_obj
+                self.map_widget.set_polygon(coords, outline_color="#2c3e50", border_width=2)
+
 
     def draw_points(self, point_gdf):
         if not point_gdf.empty and self.point_toggle_var.get():
-            for index, row in point_gdf.iterrows():
+            for row in point_gdf.iterrows():
                 x, y = row.geometry.x , row.geometry.y
-                layer_name = f"point_{index}"
-                point_obj = self.map_widget.set_marker(y,x,command = 'marker_click')
-                self.layers[layer_name] = point_obj
+                self.map_widget.set_marker(y,x,command = 'marker_click')
+
 
     def draw_lines(self, line_gdf):
         if not line_gdf.empty and self.line_toggle_var.get():
-            for index, row in line_gdf.iterrows():
+            for row in line_gdf.iterrows():
                 coords = [(y, x) for x, y in row.geometry.coords]
-                layer_name = f"line_{index}"
-                line_obj = self.map_widget.set_path(coords)
-                self.layers[layer_name] = line_obj
+                self.map_widget.set_path(coords)
+
 
 if __name__ == "__main__":
     root = tk.Tk()
